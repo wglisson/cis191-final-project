@@ -10,12 +10,15 @@ with development.
 A primary interest in this project is to try and develop a fully-featured game within the constraints
 that shell scripting presents.
 
+The game we will be making is the classic arcade game Breakout, also known as Brick Breaker.
+
 # Primary Features to be implemented
-Graphics/Visual mode: Users view either a top-down or side-scrolling visual representation of the
-game state, centered on the user's character in the game.
+Graphics/Visual mode: Users view the visual representation of the game state, centered on the user's 
+character in the game. The visuals of the game changes in real time, so the user can see the visual 
+effects of their actions.
 
 Keyboard controls: Real-time key presses enable the user to control their character in the game,
-including movement and some other form of interacting with the rest of the displayed world.
+including movement and interactions with the ball and the powerup(s).
 
 Score: Some form of score tracking that increments based on certain user achievements and behavior
 within the game.
