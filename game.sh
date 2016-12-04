@@ -145,10 +145,105 @@ demoPopulate() {
     done
 }
 
+# Board variable recommendations, can be moved around to a more appropriate position later
+# boardX represents the x coord of the center cell of the board, board movement is calculated through this
+# boardY represents the y coord of the center cell of the board, this will not change
+# boardWidth represents the width on either side of the board ignoring the center cell
+# that is, a boardWidth of 2 corresponds to an actual board size of 2 + 1 + 2 = 5
+boardWidth=2
+boardX=16
+boardY=30
+
+#Draw the board's position on the screen
+drawBoard() {
+    counter=0
+    boardLeftX=$(( boardX - $boardWidth ))
+
+    while [[ $counter -lt 5 ]]
+    do
+        case $counter in
+            0) char="<" ;;
+            1) char="=" ;;
+            2) char="=" ;;
+            3) char="=" ;;
+            4) char=">"
+        esac
+        tput cup $boardY $(( $boardLeftX + $counter ))
+        echo "$char"
+        counter=$(( $counter + 1 ))
+    done  
+}
+
+#Moves the board one character to the left
+updateBoardL() {
+    boardLeftX=$(( boardX - $boardWidth ))
+
+    tput cup $boardY $(( $boardLeftX ))
+    echo "<"
+
+    tput cup $boardY $(( $boardLeftX + 1 ))
+    echo "="
+
+    tput cup $boardY $(( $boardLeftX + 4 ))
+    echo ">"
+
+    tput cup $boardY $(( $boardLeftX + 5 ))
+    echo " "
+}
+
+#Moves the board one character to the right
+updateBoardR() {
+    boardRightX=$(( boardX + $boardWidth ))
+
+    tput cup $boardY $(( $boardRightX))
+    echo ">"
+
+    tput cup $boardY $(( $boardRightX - 1 ))
+    echo "="
+
+    tput cup $boardY $(( $boardRightX - 4 ))
+    echo "<"
+
+    tput cup $boardY $(( $boardRightX - 5 ))
+    echo " "
+}
+
+#Method stub for ball launchBall
+#launchBall() {
+#    TODO
+#}
+
 #gotta love those magic numbers on the drawBorders function
 demoPopulate
 drawBorders 1 1 31 31
 drawBricks
+drawBoard
 
 #put the command prompt below the board (visual cleanup)
 tput cup 33 1
+
+#suppress echo (hide all key press output)
+stty -echo
+
+#basic control flow
+while read -s -n 1 inst
+do
+    case $inst in
+        #Not implemented yet
+        #w) launchBall ;;
+        a) if [[ ! "$(( $boardX - $boardWidth ))" == 2 ]]
+           then
+               boardX=$(( boardX - 1 ))
+               updateBoardL
+           fi ;; 
+        d) if [[ ! "$(( $boardX + $boardWidth ))" == 31 ]]
+           then
+               boardX=$(( boardX + 1 ))
+               updateBoardR
+           fi ;; 
+       #activatable powerups can be used with s if we add them
+       #s) usePowerup
+        q) stty echo
+           exit 0 ;;
+    esac
+done
