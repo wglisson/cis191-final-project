@@ -214,6 +214,7 @@ updateBoardR() {
 #}
 
 #gotta love those magic numbers on the drawBorders function
+#the first two are starting coordinates (top left), next two numbers indicate size of border
 demoPopulate
 drawBorders 1 1 31 31
 drawBricks
