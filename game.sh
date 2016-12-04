@@ -149,3 +149,6 @@ demoPopulate() {
 demoPopulate
 drawBorders 1 1 31 31
 drawBricks
+
+#put the command prompt below the board (visual cleanup)
+tput cup 33 1
