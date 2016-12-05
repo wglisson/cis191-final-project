@@ -24,11 +24,11 @@ drawBorders() {
 
         # Move cursor to screen location X, Y (top left is 0,0)
         tput cup $2 $xloc
-        echo "X"
+        echo -n "X"
         #prints bottom border as well
         yloc=$(( $2 + $4 ))
         tput cup $yloc $xloc
-        echo "X"
+        echo -n "X"
         xprog=$(( $xprog + 1 ))
     done
 
@@ -37,10 +37,10 @@ drawBorders() {
     do
         yloc=$(( $yprog + $2 ))
         tput cup $yloc $1
-        echo "X"
+        echo -n "X"
         xloc=$(( $1 + $3 ))
         tput cup $yloc $xloc
-        echo "X"
+        echo -n "X"
         yprog=$(( $yprog + 1 ))
     done
 
@@ -50,7 +50,7 @@ drawBorders() {
         xloc=$(( $xprog + $1 ))
         yloc=$(( $2 + $4 ))
         tput cup $yloc $xloc
-        echo "X"
+        echo -n "X"
         xprog=$(( $xprog + 1 ))
     done
 }
@@ -87,21 +87,21 @@ row15=(0 0 0 0 0 0 0 0 0 0)
 getVal() {
 
     case $1 in
-        1) echo "${row1[$2]}" ;;
-        2) echo "${row2[$2]}" ;;
-        3) echo "${row3[$2]}" ;;
-        4) echo "${row4[$2]}" ;;
-        5) echo "${row5[$2]}" ;;
-        6) echo "${row6[$2]}" ;;
-        7) echo "${row7[$2]}" ;;
-        8) echo "${row8[$2]}" ;;
-        9) echo "${row9[$2]}" ;;
-        10) echo "${row10[$2]}" ;;
-        11) echo "${row11[$2]}" ;;
-        12) echo "${row12[$2]}" ;;
-        13) echo "${row13[$2]}" ;;
-        14) echo "${row14[$2]}" ;;
-        15) echo "${row15[$2]}" ;;
+        1) echo -n "${row1[$2]}" ;;
+        2) echo -n "${row2[$2]}" ;;
+        3) echo -n "${row3[$2]}" ;;
+        4) echo -n "${row4[$2]}" ;;
+        5) echo -n "${row5[$2]}" ;;
+        6) echo -n "${row6[$2]}" ;;
+        7) echo -n "${row7[$2]}" ;;
+        8) echo -n "${row8[$2]}" ;;
+        9) echo -n "${row9[$2]}" ;;
+        10) echo -n "${row10[$2]}" ;;
+        11) echo -n "${row11[$2]}" ;;
+        12) echo -n "${row12[$2]}" ;;
+        13) echo -n "${row13[$2]}" ;;
+        14) echo -n "${row14[$2]}" ;;
+        15) echo -n "${row15[$2]}" ;;
     esac
 }
 
@@ -156,7 +156,7 @@ drawBricks() {
             if [[ ! "$brick" == "[0]" ]]
             then
                 tput cup $rowOffset $colOffset
-                echo "$brick"
+                echo -n "$brick"
             fi
             col=$(( $col + 1 ))
             colOffset=$(( $colOffset + 3 ))
@@ -174,7 +174,7 @@ demoPopulate() {
     do
         valOffset=$(( $val + 1 ))
         putVal "$valOffset" "$val" 5
-        echo "$(getVal valOffset val)"
+        echo -n "$(getVal valOffset val)"
         val=$(( $val + 1))
     done
 }
@@ -204,7 +204,7 @@ drawBoard() {
             4) char=">"
         esac
         tput cup $boardY $(( $boardLeftX + $counter ))
-        echo "$char"
+        echo -n "$char"
         counter=$(( $counter + 1 ))
     done
 }
@@ -214,16 +214,16 @@ updateBoardL() {
     boardLeftX=$(( boardX - $boardWidth ))
 
     tput cup $boardY $(( $boardLeftX ))
-    echo "<"
+    echo -n "<"
 
     tput cup $boardY $(( $boardLeftX + 1 ))
-    echo "="
+    echo -n "="
 
     tput cup $boardY $(( $boardLeftX + 4 ))
-    echo ">"
+    echo -n ">"
 
     tput cup $boardY $(( $boardLeftX + 5 ))
-    echo " "
+    echo -n " "
 }
 
 #Moves the board one character to the right
@@ -231,16 +231,16 @@ updateBoardR() {
     boardRightX=$(( boardX + $boardWidth ))
 
     tput cup $boardY $(( $boardRightX))
-    echo ">"
+    echo -n ">"
 
     tput cup $boardY $(( $boardRightX - 1 ))
-    echo "="
+    echo -n "="
 
     tput cup $boardY $(( $boardRightX - 4 ))
-    echo "<"
+    echo -n "<"
 
     tput cup $boardY $(( $boardRightX - 5 ))
-    echo " "
+    echo -n " "
 }
 
 #ballX is x coordinate of ball
@@ -266,7 +266,7 @@ gameBottom=$(( topLeftY + gameHeight -1 ))
 #Method stub for ball launchBall
 launchBall() {
 	tput cup $ballY $ballX
-	echo "O"
+	echo -n "O"
 	ballSpeedX=1
 	ballSpeedY=1
 }
@@ -274,7 +274,7 @@ launchBall() {
 #updates the ball's position
 moveBall() {
 	tput cup $ballY $ballX
-	echo " "
+	echo -n " "
 
 	#check for collisions with the game's boundaries
 	if [[ $ballX -eq $gameRight ]]
@@ -296,7 +296,7 @@ moveBall() {
 	ballX=$(( ballX + ballSpeedX ))
 	ballY=$(( ballY - ballSpeedY ))
 	tput cup $ballY $ballX
-	echo "O"
+	echo -n "O"
 }
 
 demoPopulate
@@ -307,14 +307,14 @@ drawBoard
 #put the command prompt below the board (visual cleanup)
 tput cup 33 1
 
-#suppress echo (hide all key press output)
+#suppress echo -n (hide all key press output)
 stty -echo
 
 #basic control flow
 while read -s -n 1 inst
 do
 		moveBall
-		
+
     case $inst in
         #Not implemented yet
         w) launchBall ;;
