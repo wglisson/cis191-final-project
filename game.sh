@@ -243,15 +243,64 @@ updateBoardR() {
     echo " "
 }
 
-#Method stub for ball launchBall
-#launchBall() {
-#    TODO
-#}
+#ballX is x coordinate of ball
+#ballY is y coordinate of ball
+#ballSpeedX is movement of ball in x direction
+#ballSpeedY is movement of ball in y direction
+ballX=17
+ballY=28
+ballSpeedX=0
+ballSpeedY=0
 
-#gotta love those magic numbers on the drawBorders function
-#the first two are starting coordinates (top left), next two numbers indicate size of border
+
+#gives details for game board
+topLeftX=1
+topLeftY=1
+gameWidth=31
+gameHeight=31
+gameRight=$(( topLeftX + gameWidth -1 ))
+gameTop=$(( topLeftY + 1 ))
+gameLeft=$(( topLeftX + 1 ))
+gameBottom=$(( topLeftY + gameHeight -1 ))
+
+#Method stub for ball launchBall
+launchBall() {
+	tput cup $ballY $ballX
+	echo "O"
+	ballSpeedX=1
+	ballSpeedY=1
+}
+
+#updates the ball's position
+moveBall() {
+	tput cup $ballY $ballX
+	echo " "
+
+	#check for collisions with the game's boundaries
+	if [[ $ballX -eq $gameRight ]]
+	then
+		ballSpeedX=$(( -1 * ballSpeedX ))
+	fi
+	if [[ $ballY -eq $gameTop ]]
+	then
+		ballSpeedY=$(( -1 * ballSpeedY ))
+	fi
+	if [[ $ballX -eq $gameLeft ]]
+	then
+		ballSpeedX=$(( -1 * ballSpeedX ))
+	fi
+	if [[ $ballY -eq $gameBottom ]]
+	then
+		ballSpeedY=$(( -1 * ballSpeedY ))
+	fi
+	ballX=$(( ballX + ballSpeedX ))
+	ballY=$(( ballY - ballSpeedY ))
+	tput cup $ballY $ballX
+	echo "O"
+}
+
 demoPopulate
-drawBorders 1 1 31 31
+drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
 drawBricks
 drawBoard
 
@@ -264,9 +313,11 @@ stty -echo
 #basic control flow
 while read -s -n 1 inst
 do
+		moveBall
+		
     case $inst in
         #Not implemented yet
-        #w) launchBall ;;
+        w) launchBall ;;
         a) if [[ ! "$(( $boardX - $boardWidth ))" == 2 ]]
            then
                boardX=$(( boardX - 1 ))
