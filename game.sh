@@ -1,18 +1,28 @@
 #!/bin/bash
 
-#draw the borders
+# #############################################################################
+# Helper function to draw the borders of draw the borders of game
+#
+# Expects 4 input elements, as follows
+# @Input:
+# var 1 is starting x coordinate
+# var 2 is starting y coordinate
+# var 3 is x length
+# var 4 is y length
+#
+# @return: none
+# #############################################################################
 drawBorders() {
-    #var 1 is starting x coordinate
-    #var 2 is starting y coordinate
-    #var 3 is x length
-    #var 4 is y length
+
     xprog=0
     yprog=0
 
-    #print the top and bottom borders
+    #print the top and bottom borders with "X"
     while [[ $xprog -le $3 ]]
-    do 
+    do
         xloc=$(( $xprog + $1 ))
+
+        # Move cursor to screen location X, Y (top left is 0,0)
         tput cup $2 $xloc
         echo "X"
         #prints bottom border as well
@@ -22,7 +32,7 @@ drawBorders() {
         xprog=$(( $xprog + 1 ))
     done
 
-    #print the left and right borders
+    #print the left and right borders with "X"
     while [[ $yprog -lt $4 ]]
     do
         yloc=$(( $yprog + $2 ))
@@ -63,9 +73,19 @@ row13=(0 0 0 0 0 0 0 0 0 0)
 row14=(0 0 0 0 0 0 0 0 0 0)
 row15=(0 0 0 0 0 0 0 0 0 0)
 
+
+# #############################################################################
+# Helper function to get the value at (x,y).
+#
+# Expects 4 input elements, as follows
+# @Input:
+# var1 is y coordinate (row)
+# var2 is x coordinate (col)
+#
+# @return: none
+# #############################################################################
 getVal() {
-    #var1 is y coordinate (row)
-    #var2 is x coordinate (col)
+
     case $1 in
         1) echo "${row1[$2]}" ;;
         2) echo "${row2[$2]}" ;;
@@ -85,10 +105,19 @@ getVal() {
     esac
 }
 
+# #############################################################################
+# Helper function to put a value at (x,y).
+#
+# Expects 3 input elements, as follows
+# @Input:
+# var1 is y coordinate (row)
+# var2 is x coordinate (col)
+# var3 is new value
+#
+# @return: none
+# #############################################################################
 putVal() {
-    #var1 is y coordinate (row)
-    #var2 is x coordinate (col)
-    #var3 is new value
+
     case $1 in
         1) row1[$2]=$3 ;;
         2) row2[$2]=$3 ;;
@@ -107,6 +136,11 @@ putVal() {
         15) row15[$2]=$3 ;;
     esac
 }
+
+# #############################################################################
+# Helper function to draw bricks
+#
+# #############################################################################
 
 #fuck comments, it works
 drawBricks() {
@@ -129,10 +163,10 @@ drawBricks() {
         done
         row=$(( $row + 1))
         rowOffset=$(( $rowOffset + 1 ))
-    done 
+    done
 }
 
-# adds a diagonal line of [5] bricks - just POC that if we can load 
+# adds a diagonal line of [5] bricks - just POC that if we can load
 # level data into arrays, it will get drawn correctly
 demoPopulate() {
     val=0
@@ -159,6 +193,7 @@ drawBoard() {
     counter=0
     boardLeftX=$(( boardX - $boardWidth ))
 
+    #
     while [[ $counter -lt 5 ]]
     do
         case $counter in
@@ -171,7 +206,7 @@ drawBoard() {
         tput cup $boardY $(( $boardLeftX + $counter ))
         echo "$char"
         counter=$(( $counter + 1 ))
-    done  
+    done
 }
 
 #Moves the board one character to the left
@@ -236,12 +271,12 @@ do
            then
                boardX=$(( boardX - 1 ))
                updateBoardL
-           fi ;; 
+           fi ;;
         d) if [[ ! "$(( $boardX + $boardWidth ))" == 31 ]]
            then
                boardX=$(( boardX + 1 ))
                updateBoardR
-           fi ;; 
+           fi ;;
        #activatable powerups can be used with s if we add them
        #s) usePowerup
         q) stty echo
