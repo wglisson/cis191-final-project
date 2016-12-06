@@ -615,9 +615,7 @@ startGame() {
                 boardX=$(( boardX + 1 ))
                 updateBoardR
             fi ;;
-        q)  stty echo
-            tput cnorm
-            clear
+        q)  resetTerminal
             exit 0 ;;
         esac
     done
