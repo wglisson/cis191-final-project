@@ -386,9 +386,10 @@ moveBall() {
     oldBallX=$ballX
     oldBallY=$ballY
     checkBoundaryCollision
+    checkBoardCollision                     # check if collided with the board
 	ballNextX=$(( ballX + ballSpeedX ))
 	ballNextY=$(( ballY - ballSpeedY ))
-    checkBlockCollision
+    checkBlockCollision                     # check if collided with a block
     ballX=$(( ballX + ballSpeedX ))
 	ballY=$(( ballY - ballSpeedY ))
     tput cup $oldBallY $oldBallX
@@ -399,19 +400,19 @@ moveBall() {
 
 checkBoundaryCollision() {
 	#check for collisions with the game's boundaries
-	if [[ $ballX -eq $gameRight ]]
+	if [[ $ballX -ge $(( $gameRight - 1 )) ]]
 	then
 		ballSpeedX=$(( -1 * ballSpeedX ))
 	fi
-	if [[ $ballY -eq $gameTop ]]
+	if [[ $ballY -le $(( $gameTop + 1 )) ]]
 	then
 		ballSpeedY=$(( -1 * ballSpeedY ))
 	fi
-	if [[ $ballX -eq $gameLeft ]]
+	if [[ $ballX -le $(( $gameLeft + 1 )) ]]
 	then
 		ballSpeedX=$(( -1 * ballSpeedX ))
 	fi
-	if [[ $ballY -eq $gameBottom ]]
+	if [[ $ballY -ge $(( $gameBottom  )) ]]
 	then
 		#gameover
 		ballSpeedY=0
@@ -449,6 +450,50 @@ checkBlockCollision() {
             fi
         fi
     fi
+}
+
+# TODO: Implement
+ballIsWithinBoard() {
+    # check if board is on same y coordinate
+    if [[ $ballY -eq $boardY ]]; then
+        # check if ball is within x cofines of the board.
+        if [[ $ballX -ge $(( $boardX - $boardWidth)) ]]; then
+            if [[ $ballX -le $(( $boardX + $boardWidth)) ]]; then
+                return 0
+            fi
+        fi
+    fi
+    return 1
+}
+
+checkBoardCollision() {
+    # when ball collides with ball reverse the y direction
+    if ballIsWithinBoard; then
+        ballSpeedY=$(( -1 * ballSpeedY ))
+    else
+        return
+    fi
+
+    # update the x speed of ball depending on where ball collides on boardX
+    boardLeftX=$(( $boardX-$boardWidth ))
+    boardTotalWidth=$(( 2*$boardWidth + 1 ))    #compute the total board width
+    # FIXME: Note that this is a brute force solution. Completely not extensible
+    # if the board width changes in any way.
+    # FIXME: This introduces compatibility issues with check boundary collision
+    ballSpeedX_change=0
+    if [[ ballX -le $(( boardLeftX + 1 )) ]]; then
+        ballSpeedX_change=-2
+    elif [[ ballX -le $(( boardLeftX + 2 )) ]]; then
+        ballSpeedX_change=-1
+    elif [[ ballX -le $(( boardLeftX + 3 )) ]]; then
+        ballSpeedX_change=0
+    elif [[ ballX -le $(( boardLeftX + 4 )) ]]; then
+        ballSpeedX_change=1
+    else
+        ballSpeedX_change=2
+    fi
+
+    ballSpeedX=$(( ballSpeedX + ballSpeedX_change ))
 }
 
 # Starting a new game
