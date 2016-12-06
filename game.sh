@@ -17,7 +17,7 @@ echo "score: " $score
 }
 #an example usage, to show it works, use scoreX and scoreY for later calls
 drawScore $scoreX $scoreY
-
+drawScore 50 50
 
 # #############################################################################
 # Helper function to draw the borders of draw the borders of game
@@ -335,7 +335,11 @@ checkBoundaryCollision() {
 	fi
 	if [[ $ballY -eq $gameBottom ]]
 	then
-		ballSpeedY=$(( -1 * ballSpeedY ))
+		#gameover
+		ballSpeedY=0
+		ballSpeedX=0
+		tput cup $(( $scoreY + 5)) $scoreX
+		echo "Game Over"
 	fi
 }
 
@@ -359,6 +363,7 @@ checkBlockCollision() {
         fi
     fi
 }
+
 
 ballLaunched=0
 
