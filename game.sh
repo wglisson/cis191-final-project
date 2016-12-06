@@ -519,7 +519,7 @@ startGame() {
     # This design choice allows for more extensibility down the line should we
     # decide to implement different levels of varying difficulty and number of
     # blocks
-    ./generateLevel $BLOCKS_MAX_NUMROWS $BLOCKS_ROWSTOFILL_DEFAULT $BLOCKS_NUMCOLS_DEFAULT
+    ./generateLevel.sh $BLOCKS_MAX_NUMROWS $BLOCKS_ROWSTOFILL_DEFAULT $BLOCKS_NUMCOLS_DEFAULT
 
     # Once the level is generate from ./generateLevel, we load the level (insantiating)
     # the data structures based on the contents of the file <randomLevel>
