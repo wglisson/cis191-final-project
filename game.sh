@@ -41,6 +41,9 @@ initializeBlocks() {
     export row15=(0 0 0 0 0 0 0 0 0 0)
 }
 
+BLOCKS_MAX_NUMROWS=15           # Maximum allowed num rows of blocks is 15.
+BLOCKS_ROWSTOFILL_DEFAULT=5     # Rows to actually fill. Suggested default: 5
+BLOCKS_NUMCOLS_DEFAULT=10       # Cols to actually fill. Suggested default: 10
 
 # #############################################################################
 # Helper function draws the score in the instance of the game
@@ -507,8 +510,19 @@ startGame() {
 
     drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
 
-    #NOTE: Here, we generate a new level based on the file <randomLevel
-    #demoPopulate
+
+    # First generate a level with $BLOCKS_ROWSTOFILL_DEFAULT number of rows of block,
+    # but which allows up to BLOCKS_MAX_NUMROWS of blocks. Essentially the file
+    # used to encode a is BLOCKS_MAX_NUMROWS lines, where the First
+    # BLOCKS_ROWSTOFILL_DEFAULT number of lines are lines of random integers,
+    # and the rest of the lines are filled with 0's to indicate blank blocks.
+    # This design choice allows for more extensibility down the line should we
+    # decide to implement different levels of varying difficulty and number of
+    # blocks
+    ./generateLevel $BLOCKS_MAX_NUMROWS $BLOCKS_ROWSTOFILL_DEFAULT $BLOCKS_NUMCOLS_DEFAULT
+
+    # Once the level is generate from ./generateLevel, we load the level (insantiating)
+    # the data structures based on the contents of the file <randomLevel>
     loadBlocksFromFile randomLevel
 
     # Draw the bricks and board
