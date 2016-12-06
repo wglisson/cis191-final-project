@@ -1,6 +1,36 @@
 #!/bin/bash
 
 
+##########################   Intiailization stuff  ############################
+
+# Checks if the game window reachers requirements. game needs at least 50
+# column terminal display. Note: Adapted from ShellTris
+clear
+LL=`stty -a | grep rows | sed 's/^.*;\(.*\)rows\(.*\);.*$/\1\2/' | sed 's/;.*$//' | sed 's/[^0-9]//g'` # ROWS
+LC=`stty -a | grep columns | sed 's/^.*;\(.*\)columns\(.*\);.*$/\1\2/' | sed 's/;.*$//' | sed 's/[^0-9]//g'` # COLUMNS
+if [ $LC -lt 50 ] ; then
+	echo "This game requires at least a 50-column terminal display. Please make your terminal bigger"
+	exit 0;
+fi
+
+if [ $LL -lt 35 ] ; then
+    echo "This game requires at least a 35 row terminal display. Please make your terminal bigger"
+    exit 0;
+fi
+
+# TODO: Implementscoring system.
+INITIAL_SCORE=0
+
+# Terminal setting to suppress echo (hide all key press output)
+#TTYSETTING="-echo"
+#############################################################################*
+
+
+
+
+
+
+
 #Helper function draws the score in the instance of the game
 #Expects 2 input elements, as follows
 #@Inputs:
@@ -197,7 +227,7 @@ updateBrick() {
         echo -n "$brick"
     else
         tput cup $rowOffset $colOffset
-        echo -n "   "   
+        echo -n "   "
     fi
 }
 
