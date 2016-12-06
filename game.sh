@@ -185,7 +185,24 @@ drawBricks() {
     done
 }
 
-# adds a diagonal line of [5] bricks - just POC that if we can load
+#1 row
+#2 col
+updateBrick() {
+    rowOffset=$(( $1 + 1 ))
+    colOffset=$(( $2 + 2 ))
+    brick="[$(getVal $1 $2)]"
+    if [[ ! "$brick" == "[0]" ]]
+    then
+        tput cup $rowOffset $colOffset
+        echo -n "$brick"
+    else
+        tput cup $rowOffset $colOffset
+        echo -n "   "   
+    fi
+}
+
+# loads data into arrays that will then be drawn to
+# add a diagonal line of [5] bricks - just POC that if we can load
 # level data into arrays, it will get drawn correctly
 demoPopulate() {
     val=0
@@ -211,8 +228,6 @@ boardY=30
 drawBoard() {
     counter=0
     boardLeftX=$(( boardX - $boardWidth ))
-
-    #
     while [[ $counter -lt 5 ]]
     do
         case $counter in
@@ -292,9 +307,19 @@ launchBall() {
 
 #updates the ball's position
 moveBall() {
-	tput cup $ballY $ballX
+    oldBallX=$ballX
+    oldBallY=$ballY
+    checkBoundaryCollision
+    #checkBlockCollision
+	ballX=$(( ballX + ballSpeedX ))
+	ballY=$(( ballY - ballSpeedY ))
+    tput cup $oldBallY $oldBallX
 	echo -n " "
+	tput cup $ballY $ballX
+	echo -n "O"
+}
 
+checkBoundaryCollision() {
 	#check for collisions with the game's boundaries
 	if [[ $ballX -eq $gameRight ]]
 	then
@@ -312,13 +337,35 @@ moveBall() {
 	then
 		ballSpeedY=$(( -1 * ballSpeedY ))
 	fi
-	ballX=$(( ballX + ballSpeedX ))
-	ballY=$(( ballY - ballSpeedY ))
-	tput cup $ballY $ballX
-	echo -n "O"
 }
 
-demoPopulate
+checkBlockCollision() {
+    blockYIndex=$(( $ballY - 1 ))
+    if [[ "$blockYIndex" -le 15 ]]
+    then
+        blockXOffset=$(( $ballX + 1 ))
+        blockXIndex=$(( $blockXOffset / 3 ))
+        blockXIndex=$(( $blockXIndex - 1 ))
+        echo $blockXIndex >> log.txt
+        echo $blockYIndex >> log.txt
+        blockVal="$(getVal $blockYIndex $blockXIndex)"
+        echo $blockVal >> log.txt
+        if [[ ! "$blockVal" == "0" ]]
+        then
+            blockVal=$(( $blockVal - 1 ))
+            putVal "$blockYIndex" "$blockXIndex" "$blockVal"
+            updateBrick "$blockYIndex" "$blockXIndex"
+            ballSpeedY=$(( -1 * ballSpeedY ))
+        fi
+    fi
+}
+
+ballLaunched=0
+
+#clear the terminal on starting
+clear
+
+#demoPopulate
 drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
 drawBricks
 drawBoard
@@ -326,19 +373,21 @@ drawBoard
 #put the command prompt below the board (visual cleanup)
 tput cup 33 1
 
-#suppress echo -n (hide all key press output)
+#suppress echo (hide all key press output)
 stty -echo
 
 
 #basic control flow
 while read -s -n 1 inst
 do
-
-		moveBall
-
+	moveBall
     case $inst in
         #Not implemented yet
-        w) launchBall ;;
+        w) if [[ "$ballLaunched" == "0" ]]
+           then
+               launchBall
+               ballLaunched=1
+           fi ;;
         a) if [[ ! "$(( $boardX - $boardWidth ))" == 2 ]]
            then
                boardX=$(( boardX - 1 ))
@@ -352,6 +401,7 @@ do
        #activatable powerups can be used with s if we add them
        #s) usePowerup
         q) stty echo
+           clear
            exit 0 ;;
     esac
 done
