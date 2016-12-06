@@ -1,5 +1,21 @@
 #!/bin/bash
 
+
+#Helper function draws the score in the instance of the game
+#Expects 2 input elements, as follows
+#@Inputs:
+#var 1 is starting x coordinate
+#var 2 is starting y coordinate
+#score is the current score, initially 0, but changes throughout the game
+score=0
+
+drawScore() {
+tput cup $2 $1
+echo "score: " $score
+}
+drawScore 40 10
+
+
 # #############################################################################
 # Helper function to draw the borders of draw the borders of game
 #
@@ -310,9 +326,11 @@ tput cup 33 1
 #suppress echo -n (hide all key press output)
 stty -echo
 
+
 #basic control flow
 while read -s -n 1 inst
 do
+
 		moveBall
 
     case $inst in
