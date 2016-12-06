@@ -424,6 +424,29 @@ checkBoundaryCollision() {
 		ballSpeedX=0
 		tput cup $(( $scoreY + 5)) $scoreX
 		echo "Game Over"
+		#compares current score to high score (if it exists), and update if needed
+		#check if the high scores list exists
+		if [[ -f ".highScore" ]]
+		then
+			read -r curHighScore < .highScore
+			#curHighScore=10
+			if [[ score -le curHighScore ]]
+			then
+				tput cup $(( $scoreY + 10 )) $scoreX
+				echo "current high score is " $curHighScore
+			else
+				echo $score > .highScore
+				tput cup $(( $scoreY + 10 )) $scoreX
+				echo $score "is a new high score!"
+			fi
+		else
+			#if no high score file, print "new high score" and create high score file
+			touch .highScore
+			echo $score > .highScore
+			tput cup $(( $scoreY + 10 )) $scoreX
+			echo $score "is a new high score!"
+		fi
+
         #TODO: Implement  Allow user to press a key to play again.
         # TODO: If exit, need to clear the terminal and revert the cursor settings.
         sleep 3
