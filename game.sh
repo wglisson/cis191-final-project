@@ -4,7 +4,6 @@
 
 # Checks if the game window reachers requirements. game needs at least 50
 # column terminal display. Note: Adapted from ShellTris
-clear
 LL=`stty -a | grep rows | sed 's/^.*;\(.*\)rows\(.*\);.*$/\1\2/' | sed 's/;.*$//' | sed 's/[^0-9]//g'` # ROWS
 LC=`stty -a | grep columns | sed 's/^.*;\(.*\)columns\(.*\);.*$/\1\2/' | sed 's/;.*$//' | sed 's/[^0-9]//g'` # COLUMNS
 if [ $LC -lt 50 ] ; then
@@ -22,6 +21,29 @@ INITIAL_SCORE=0
 
 # Terminal setting to suppress echo (hide all key press output)
 #TTYSETTING="-echo"
+
+
+#############        data structures to store blocks      ######################
+# Note that there is a maximum of 15 rows
+initializeBlocks() {
+    export row1=(0 0 0 0 0 0 0 0 0 0)
+    export row2=(0 0 0 0 0 0 0 0 0 0)
+    export row3=(0 0 0 0 0 0 0 0 0 0)
+    export row4=(0 0 0 0 0 0 0 0 0 0)
+    export row5=(0 0 0 0 0 0 0 0 0 0)
+    export row6=(0 0 0 0 0 0 0 0 0 0)
+    export row7=(0 0 0 0 0 0 0 0 0 0)
+    export row8=(0 0 0 0 0 0 0 0 0 0)
+    export row9=(0 0 0 0 0 0 0 0 0 0)
+    export row10=(0 0 0 0 0 0 0 0 0 0)
+    export row11=(0 0 0 0 0 0 0 0 0 0)
+    export row12=(0 0 0 0 0 0 0 0 0 0)
+    export row13=(0 0 0 0 0 0 0 0 0 0)
+    export row14=(0 0 0 0 0 0 0 0 0 0)
+    export row15=(0 0 0 0 0 0 0 0 0 0)
+}
+
+
 
 
 # #############################################################################
@@ -100,23 +122,6 @@ drawBorders() {
     done
 }
 
-#data structures!
-#can be created more efficiently but I don't feel like doing that now
-row1=(0 0 0 0 0 0 0 0 0 0)
-row2=(0 0 0 0 0 0 0 0 0 0)
-row3=(0 0 0 0 0 0 0 0 0 0)
-row4=(0 0 0 0 0 0 0 0 0 0)
-row5=(0 0 0 0 0 0 0 0 0 0)
-row6=(0 0 0 0 0 0 0 0 0 0)
-row7=(0 0 0 0 0 0 0 0 0 0)
-row8=(0 0 0 0 0 0 0 0 0 0)
-row9=(0 0 0 0 0 0 0 0 0 0)
-row10=(0 0 0 0 0 0 0 0 0 0)
-row11=(0 0 0 0 0 0 0 0 0 0)
-row12=(0 0 0 0 0 0 0 0 0 0)
-row13=(0 0 0 0 0 0 0 0 0 0)
-row14=(0 0 0 0 0 0 0 0 0 0)
-row15=(0 0 0 0 0 0 0 0 0 0)
 
 
 # #############################################################################
@@ -414,7 +419,7 @@ startGame() {
 
     # ball has not launched
     ballLaunched=0
-    
+
     #clear the terminal on starting
     clear
 
@@ -459,3 +464,4 @@ startGame() {
 
 # start the game
 startGame
+export
