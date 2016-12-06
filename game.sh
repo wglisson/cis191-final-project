@@ -1,6 +1,6 @@
 #!/bin/bash
 
-##########################   Intiailization stuff  ############################
+########################   Check System Requirements  ##########################
 
 # Checks if the game window reachers requirements. game needs at least 50
 # column terminal display. Note: Adapted from ShellTris
@@ -16,15 +16,13 @@ if [ $LL -lt 35 ] ; then
     exit 0;
 fi
 
-# TODO: Implementscoring system.
-INITIAL_SCORE=0
-
 # Terminal setting to suppress echo (hide all key press output)
 #TTYSETTING="-echo"
 
 
 #############        data structures to store blocks      ######################
-# Note that there is a maximum of 15 rows
+# Note that there is a maximum of 15 rows of blocks
+# Each row has 10 blocks
 initializeBlocks() {
     export row1=(0 0 0 0 0 0 0 0 0 0)
     export row2=(0 0 0 0 0 0 0 0 0 0)
@@ -42,8 +40,6 @@ initializeBlocks() {
     export row14=(0 0 0 0 0 0 0 0 0 0)
     export row15=(0 0 0 0 0 0 0 0 0 0)
 }
-
-
 
 
 # #############################################################################
@@ -187,12 +183,54 @@ putVal() {
     esac
 }
 
+
+
 # #############################################################################
-# Helper function to draw bricks
+# Loads blocks based on description from a file.
+#
+# FIXME: Currently does not does error checking to ensure that the file has
+# at most 10 columns and 15 rows. This should be enforced by any argument passed
+# into generateLevel
+#
+# @Inputs:
+# var 1: filename       the file from which to load the blocks.
+# #############################################################################
+loadBlocksFromFile() {
+    # check if there is at least 1 input
+    if [[ $# -lt 1 ]]; then echo "usage: loadBlocksFromFile <filename>"; exit 1; fi
+
+    # We process each row at a time. Initialize currRow to 1
+    currRow=1
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+        # echo "Text read from file: $line"     # test that line read is correct
+
+        # Playing with variable assignments
+        # declare row$currRow=$line
+        # varname=row$currRow
+        # echo ${!varname}
+
+        # Loop over each character in each line and update the data structures
+        # representing the blocks using putVal
+        rowEncoding="$line"
+        for (( i=0; i<${#rowEncoding}; i++ )); do
+          # echo "${rowEncoding:$i:1}"      # test that we can loop over each character
+
+          # puts the value in the appropriate row and colum
+          putVal $currRow "$((i + 1))" "${rowEncoding:$i:1}"
+        done
+
+        # once a line is read, update the current Row.
+        currRow=$((currRow + 1))
+    done < "$1"
+}
+
+
+
+# #############################################################################
+# Helper function to render the bricks based on the underlying bricks data
+# structure
 #
 # #############################################################################
-
-#fuck comments, it works
 drawBricks() {
     row=1
     rowOffset=2
@@ -413,24 +451,22 @@ checkBlockCollision() {
     fi
 }
 
-
 # Starting a new game
 startGame() {
+    clear               #clear the terminal on starting
+    stty -echo          #suppress echo (hide all key press output)
+    tput civis          #hide the cursor
 
-    # ball has not launched
-    ballLaunched=0
+    initializeBlocks    # sets all blocks to emtpy
+    ballLaunched=0      # ball has not launched
 
-    #clear the terminal on starting
-    clear
-
-    #suppress echo (hide all key press output)
-    stty -echo
-
-    #hide the cursor
-    tput civis
-
-    demoPopulate
     drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
+
+    #NOTE: Here, we generate a new level based on the file <randomLevel
+    #demoPopulate
+    loadBlocksFromFile randomLevel
+
+    # Draw the bricks and board
     drawBricks
     drawBoard
 
