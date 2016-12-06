@@ -320,6 +320,7 @@ drawBoard() {
     done
 }
 
+
 #Moves the board one character to the left
 updateBoardL() {
     boardLeftX=$(( boardX - $boardWidth ))
@@ -401,6 +402,10 @@ moveBall() {
 	echo -n "O"
 }
 
+# #############################################################################
+# Helper function to check whether the ball has collided with any boundaries.
+# Update velocity of ball approriately
+# #############################################################################
 checkBoundaryCollision() {
 	#check for collisions with the game's boundaries
 	if [[ $ballX -ge $(( $gameRight - 1 )) ]]
@@ -422,9 +427,26 @@ checkBoundaryCollision() {
 		ballSpeedX=0
 		tput cup $(( $scoreY + 5)) $scoreX
 		echo "Game Over"
+        #TODO: Implement  Allow user to press a key to play again.
+        # TODO: If exit, need to clear the terminal and revert the cursor settings.
+        sleep 3
+        resetTerminal
+        exit 0
 	fi
 }
 
+## resets terminal after game state ends.
+resetTerminal() {
+    tput reset
+    stty echo
+}
+
+# #############################################################################
+# Helper function to check whether the ball has collided with any blocks
+# Update velocity of ball approriately and decrease the value of collided
+# blocks
+# #############################################################################
+# FIXME: Seems a little bit broken
 checkBlockCollision() {
     blockYIndex=$(( $ballNextY - 1 ))
     if [[ "$blockYIndex" -le 15 ]]
@@ -455,10 +477,13 @@ checkBlockCollision() {
     fi
 }
 
-# TODO: Implement
+# #############################################################################
+# Helper function to check whether the ball is within the bounds of the board
+# This is useful for checking whether the ball has collided with the board
+# #############################################################################
 ballIsWithinBoard() {
     # check if board is on same y coordinate
-    if [[ $ballY -eq $boardY ]]; then
+    if [[ $ballY -ge $(( $boardY - 1)) ]]; then
         # check if ball is within x cofines of the board.
         if [[ $ballX -ge $(( $boardX - $boardWidth)) ]]; then
             if [[ $ballX -le $(( $boardX + $boardWidth)) ]]; then
@@ -469,6 +494,11 @@ ballIsWithinBoard() {
     return 1
 }
 
+# #############################################################################
+# Helper function to check whether the ball has collided with the board. This
+# function also changes the ball's x-velocity appropriately to take note of
+# where the ball hit the paddle.
+# #############################################################################
 checkBoardCollision() {
     # when ball collides with ball reverse the y direction
     if ballIsWithinBoard; then
@@ -482,7 +512,6 @@ checkBoardCollision() {
     boardTotalWidth=$(( 2*$boardWidth + 1 ))    #compute the total board width
     # FIXME: Note that this is a brute force solution. Completely not extensible
     # if the board width changes in any way.
-    # FIXME: This introduces compatibility issues with check boundary collision
     ballSpeedX_change=0
     if [[ ballX -le $(( boardLeftX + 1 )) ]]; then
         ballSpeedX_change=-2
