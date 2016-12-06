@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 ##########################   Intiailization stuff  ############################
 
 # Checks if the game window reachers requirements. game needs at least 50
@@ -23,20 +22,16 @@ INITIAL_SCORE=0
 
 # Terminal setting to suppress echo (hide all key press output)
 #TTYSETTING="-echo"
-#############################################################################*
 
 
-
-
-
-
-
-#Helper function draws the score in the instance of the game
-#Expects 2 input elements, as follows
-#@Inputs:
-#var 1 is starting x coordinate
-#var 2 is starting y coordinate
-#score is the current score, initially 0, but changes throughout the game
+# #############################################################################
+# Helper function draws the score in the instance of the game
+# Expects 2 input elements, as follows
+# @Inputs:
+# var 1 is starting x coordinate
+# var 2 is starting y coordinate
+# score is the current score, initially 0, but changes throughout the game
+# #############################################################################
 score=0
 scoreX=40
 scoreY=10
@@ -48,6 +43,7 @@ echo "score: " $score
 #an example usage, to show it works, use scoreX and scoreY for later calls
 drawScore $scoreX $scoreY
 drawScore 50 50
+
 
 # #############################################################################
 # Helper function to draw the borders of draw the borders of game
@@ -318,14 +314,14 @@ ballSpeedY=0
 
 
 #gives details for game board
-topLeftX=1
-topLeftY=1
-gameWidth=31
-gameHeight=31
-gameRight=$(( topLeftX + gameWidth -1 ))
-gameTop=$(( topLeftY + 1 ))
-gameLeft=$(( topLeftX + 1 ))
-gameBottom=$(( topLeftY + gameHeight -1 ))
+export topLeftX=1
+export topLeftY=1
+export gameWidth=31
+export gameHeight=31
+export gameRight=$(( topLeftX + gameWidth -1 ))
+export gameTop=$(( topLeftY + 1 ))
+export gameLeft=$(( topLeftX + 1 ))
+export gameBottom=$(( topLeftY + gameHeight -1 ))
 
 #Method stub for ball launchBall
 launchBall() {
@@ -395,48 +391,56 @@ checkBlockCollision() {
 }
 
 
-ballLaunched=0
+# Starting a new game
+startGame() {
+    #clear the terminal on starting
+    clear
 
-#clear the terminal on starting
-clear
+    # ball has not launched
+    ballLaunched=0
 
-#demoPopulate
-drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
-drawBricks
-drawBoard
+    #demoPopulate
+    drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
+    drawBricks
+    drawBoard
 
-#put the command prompt below the board (visual cleanup)
-tput cup 33 1
+    #put the command prompt below the board (visual cleanup)
+    tput cup 33 1
 
-#suppress echo (hide all key press output)
-stty -echo
+    #suppress echo (hide all key press output)
+    stty -echo
 
 
-#basic control flow
-while read -s -n 1 inst
-do
-	moveBall
-    case $inst in
-        #Not implemented yet
-        w) if [[ "$ballLaunched" == "0" ]]
-           then
-               launchBall
-               ballLaunched=1
-           fi ;;
-        a) if [[ ! "$(( $boardX - $boardWidth ))" == 2 ]]
-           then
-               boardX=$(( boardX - 1 ))
-               updateBoardL
-           fi ;;
-        d) if [[ ! "$(( $boardX + $boardWidth ))" == 31 ]]
-           then
-               boardX=$(( boardX + 1 ))
-               updateBoardR
-           fi ;;
-       #activatable powerups can be used with s if we add them
-       #s) usePowerup
-        q) stty echo
-           clear
-           exit 0 ;;
-    esac
-done
+    #basic control flow
+    while read -s -n 1 inst
+    do
+    	moveBall
+        case $inst in
+            #Not implemented yet
+            w) if [[ "$ballLaunched" == "0" ]]
+               then
+                   launchBall
+                   ballLaunched=1
+               fi ;;
+            a) if [[ ! "$(( $boardX - $boardWidth ))" == 2 ]]
+               then
+                   boardX=$(( boardX - 1 ))
+                   updateBoardL
+               fi ;;
+            d) if [[ ! "$(( $boardX + $boardWidth ))" == 31 ]]
+               then
+                   boardX=$(( boardX + 1 ))
+                   updateBoardR
+               fi ;;
+           #activatable powerups can be used with s if we add them
+           #s) usePowerup
+            q) stty echo
+               clear
+               exit 0 ;;
+        esac
+    done
+}
+
+
+# start the game
+startGame
