@@ -216,7 +216,7 @@ loadBlocksFromFile() {
           # echo "${rowEncoding:$i:1}"      # test that we can loop over each character
 
           # puts the value in the appropriate row and colum
-          putVal $currRow "$((i + 1))" "${rowEncoding:$i:1}"
+          putVal $currRow "$((i))" "${rowEncoding:$i:1}"
         done
 
         # once a line is read, update the current Row.
@@ -240,8 +240,8 @@ drawBricks() {
         colOffset=2
         while [[ $col -lt 10 ]]
         do
-            brick=" $(getVal $row $col) "
-            if [[ ! "$brick" == " 0 " ]]
+            brick="[$(getVal $row $col)]"
+            if [[ ! "$brick" == "[0]" ]]
             then
                 tput cup $rowOffset $colOffset
                 echo -n "$brick"
@@ -264,8 +264,8 @@ updateBrick() {
     rowOffset=$(( $1 + 1 ))
     colOffset=$(( $2 * 3 ))
     colOffset=$(( $colOffset + 2 ))
-    brick=" $(getVal $1 $2) "
-    if [[ ! "$brick" == " 0 " ]]
+    brick="[$(getVal $1 $2)]"
+    if [[ ! "$brick" == "[0]" ]]
     then
         tput cup $rowOffset $colOffset
         echo -n "$brick"
@@ -449,16 +449,16 @@ checkBlockCollision() {
     if [[ "$blockYIndex" -le 15 ]]
     then
         blockCheckX=$(( $ballNextX + 1 ))
-        blockCheckL=$ballNextX
-        blockCheckR=$(( $ballNextX + 2 ))
+        #blockCheckL=$ballNextX
+        #blockCheckR=$(( $ballNextX + 2 ))
         blockCheckX=$(( $blockCheckX / 3 ))
-        blockCheckL=$(( $blockCheckL / 3 ))
-        blockCheckR=$(( $blockCheckR / 3 ))
+        #blockCheckL=$(( $blockCheckL / 3 ))
+        #blockCheckR=$(( $blockCheckR / 3 ))
         blockXIndex=$(( $blockCheckX - 1 ))
-        if [[ $blockCheckL -eq $blockCheckX ]]
-        then
-            if [[ $blockCheckR -eq $blockCheckX ]]
-            then
+        #if [[ $blockCheckL -eq $blockCheckX ]]
+        #then
+            #if [[ $blockCheckR -eq $blockCheckX ]]
+            #then
                 blockVal="$(getVal $blockYIndex $blockXIndex)"
                 if [[ $blockVal -ne 0 ]]
                 then
@@ -469,8 +469,8 @@ checkBlockCollision() {
                     updateBrick "$blockYIndex" "$blockXIndex"
                     ballSpeedY=$(( -1 * ballSpeedY ))
                 fi
-            fi
-        fi
+            #fi
+        #fi
     fi
 }
 
