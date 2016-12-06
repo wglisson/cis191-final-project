@@ -59,11 +59,8 @@ scoreY=10
 
 drawScore() {
 tput cup $2 $1
-echo "score: " $score
+echo "Score: " $score
 }
-#an example usage, to show it works, use scoreX and scoreY for later calls
-drawScore $scoreX $scoreY
-drawScore 50 50
 
 
 # #############################################################################
@@ -466,10 +463,10 @@ checkBlockCollision() {
                 if [[ $blockVal -ne 0 ]]
                 then
                     blockVal=$(( $blockVal - 1 ))
+                    score=$(( $score + 1 ))
+                    drawScore $scoreX $scoreY
                     putVal "$blockYIndex" "$blockXIndex" "$blockVal"
                     updateBrick "$blockYIndex" "$blockXIndex"
-                    #ballX=$(( ballX - 2 ))
-                    #ballY=$(( ballY - 1 ))
                     ballSpeedY=$(( -1 * ballSpeedY ))
                 fi
             fi
@@ -538,7 +535,7 @@ startGame() {
     ballLaunched=0      # ball has not launched
 
     drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
-
+    drawScore $scoreX $scoreY
 
     # First generate a level with $BLOCKS_ROWSTOFILL_DEFAULT number of rows of block,
     # but which allows up to BLOCKS_MAX_NUMROWS of blocks. Essentially the file
