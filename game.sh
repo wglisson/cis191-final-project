@@ -8,12 +8,15 @@
 #var 2 is starting y coordinate
 #score is the current score, initially 0, but changes throughout the game
 score=0
+scoreX=40
+scoreY=10
 
 drawScore() {
 tput cup $2 $1
 echo "score: " $score
 }
-drawScore 40 10
+#an example usage, to show it works, use scoreX and scoreY for later calls
+drawScore $scoreX $scoreY
 
 
 # #############################################################################
