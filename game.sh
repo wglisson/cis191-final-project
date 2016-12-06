@@ -1,12 +1,37 @@
 #!/bin/bash
 
+##########################   Intiailization stuff  ############################
 
-#Helper function draws the score in the instance of the game
-#Expects 2 input elements, as follows
-#@Inputs:
-#var 1 is starting x coordinate
-#var 2 is starting y coordinate
-#score is the current score, initially 0, but changes throughout the game
+# Checks if the game window reachers requirements. game needs at least 50
+# column terminal display. Note: Adapted from ShellTris
+clear
+LL=`stty -a | grep rows | sed 's/^.*;\(.*\)rows\(.*\);.*$/\1\2/' | sed 's/;.*$//' | sed 's/[^0-9]//g'` # ROWS
+LC=`stty -a | grep columns | sed 's/^.*;\(.*\)columns\(.*\);.*$/\1\2/' | sed 's/;.*$//' | sed 's/[^0-9]//g'` # COLUMNS
+if [ $LC -lt 50 ] ; then
+	echo "This game requires at least a 50-column terminal display. Please make your terminal bigger"
+	exit 0;
+fi
+
+if [ $LL -lt 35 ] ; then
+    echo "This game requires at least a 35 row terminal display. Please make your terminal bigger"
+    exit 0;
+fi
+
+# TODO: Implementscoring system.
+INITIAL_SCORE=0
+
+# Terminal setting to suppress echo (hide all key press output)
+#TTYSETTING="-echo"
+
+
+# #############################################################################
+# Helper function draws the score in the instance of the game
+# Expects 2 input elements, as follows
+# @Inputs:
+# var 1 is starting x coordinate
+# var 2 is starting y coordinate
+# score is the current score, initially 0, but changes throughout the game
+# #############################################################################
 score=0
 scoreX=40
 scoreY=10
@@ -17,6 +42,7 @@ echo "score: " $score
 }
 #an example usage, to show it works, use scoreX and scoreY for later calls
 drawScore $scoreX $scoreY
+drawScore 50 50
 
 
 # #############################################################################
@@ -198,7 +224,7 @@ updateBrick() {
         echo -n "$brick"
     else
         tput cup $rowOffset $colOffset
-        echo -n "   "   
+        echo -n "   "
     fi
 }
 
@@ -291,14 +317,14 @@ ballSpeedY=0
 
 
 #gives details for game board
-topLeftX=1
-topLeftY=1
-gameWidth=31
-gameHeight=31
-gameRight=$(( topLeftX + gameWidth -1 ))
-gameTop=$(( topLeftY + 1 ))
-gameLeft=$(( topLeftX + 1 ))
-gameBottom=$(( topLeftY + gameHeight -1 ))
+export topLeftX=1
+export topLeftY=1
+export gameWidth=31
+export gameHeight=31
+export gameRight=$(( topLeftX + gameWidth -1 ))
+export gameTop=$(( topLeftY + 1 ))
+export gameLeft=$(( topLeftX + 1 ))
+export gameBottom=$(( topLeftY + gameHeight -1 ))
 
 #Method stub for ball launchBall
 launchBall() {
@@ -340,7 +366,11 @@ checkBoundaryCollision() {
 	fi
 	if [[ $ballY -eq $gameBottom ]]
 	then
-		ballSpeedY=$(( -1 * ballSpeedY ))
+		#gameover
+		ballSpeedY=0
+		ballSpeedX=0
+		tput cup $(( $scoreY + 5)) $scoreX
+		echo "Game Over"
 	fi
 }
 
@@ -374,45 +404,54 @@ checkBlockCollision() {
     fi
 }
 
-ballLaunched=0
 
-#clear the terminal on starting
-clear
+# Starting a new game
+startGame() {
 
-#suppress echo (hide all key press output)
-stty -echo
+    # ball has not launched
+    ballLaunched=0
+    
+    #clear the terminal on starting
+    clear
 
-#hide the cursor
-tput civis
+    #suppress echo (hide all key press output)
+    stty -echo
 
-demoPopulate
-drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
-drawBricks
-drawBoard
+    #hide the cursor
+    tput civis
 
-#basic control flow
-while read -s -n 1 inst
-do
-	moveBall
-    case $inst in
-        w) if [[ "$ballLaunched" == "0" ]]
-           then
-               launchBall
-               ballLaunched=1
-           fi ;;
-        a) if [[ ! "$(( $boardX - $boardWidth ))" == 2 ]]
-           then
-               boardX=$(( boardX - 1 ))
-               updateBoardL
-           fi ;;
-        d) if [[ ! "$(( $boardX + $boardWidth ))" == 31 ]]
-           then
-               boardX=$(( boardX + 1 ))
-               updateBoardR
-           fi ;;
-        q) stty echo
-           tput cnorm
-           clear
-           exit 0 ;;
-    esac
-done
+    demoPopulate
+    drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
+    drawBricks
+    drawBoard
+
+    #basic control flow
+    while read -s -n 1 inst
+    do
+	    moveBall
+        case $inst in
+        w)  if [[ "$ballLaunched" == "0" ]]
+            then
+                launchBall
+                ballLaunched=1
+            fi ;;
+        a)  if [[ ! "$(( $boardX - $boardWidth ))" == 2 ]]
+            then
+                boardX=$(( boardX - 1 ))
+                updateBoardL
+            fi ;;
+        d)  if [[ ! "$(( $boardX + $boardWidth ))" == 31 ]]
+            then
+                boardX=$(( boardX + 1 ))
+                updateBoardR
+            fi ;;
+        q)  stty echo
+            tput cnorm
+            clear
+            exit 0 ;;
+        esac
+    done
+}
+
+# start the game
+startGame
