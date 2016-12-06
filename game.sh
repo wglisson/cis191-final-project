@@ -537,6 +537,21 @@ startGame() {
     drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
     drawScore $scoreX $scoreY
 
+		#var1 decides what level to play. if no var1 or var1 doesn't exist, then we 
+		#create a random level
+		if [[ -f $1 ]]
+		then
+			case $1 in
+				level1) loadBlocksFromFile level1 ;;
+				level2) loadBlocksFromFile level2 ;;
+				level3) loadBlocksFromFile level3 ;;
+				level4) loadBlocksFromFile level4 ;;
+				level5) loadBlocksFromFile level5 ;;
+				*) clear
+						echo "file is not a level"
+						exit 0 ;;
+			esac
+		else
     # First generate a level with $BLOCKS_ROWSTOFILL_DEFAULT number of rows of block,
     # but which allows up to BLOCKS_MAX_NUMROWS of blocks. Essentially the file
     # used to encode a is BLOCKS_MAX_NUMROWS lines, where the First
@@ -550,6 +565,8 @@ startGame() {
     # Once the level is generate from ./generateLevel, we load the level (insantiating)
     # the data structures based on the contents of the file <randomLevel>
     loadBlocksFromFile randomLevel
+		fi
+
 
     # Draw the bricks and board
     drawBricks
@@ -582,5 +599,5 @@ startGame() {
 }
 
 # start the game
-startGame
+startGame $1
 export
