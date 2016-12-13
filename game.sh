@@ -356,7 +356,7 @@ updateBoardR() {
 #ballY is y coordinate of ball
 #ballSpeedX is movement of ball in x direction
 #ballSpeedY is movement of ball in y direction
-ballX=17
+ballX=0
 ballY=28
 ballNextX=0
 ballNextY=0
@@ -376,6 +376,7 @@ export gameBottom=$(( topLeftY + gameHeight -1 ))
 
 #Method stub for ball launchBall
 launchBall() {
+    ballX=$boardX
 	tput cup $ballY $ballX
 	echo -n "O"
 	ballSpeedX=1
@@ -599,7 +600,10 @@ startGame() {
     #basic control flow
     while read -s -n 1 inst
     do
-	    moveBall
+        if [[ "$ballLaunched" == "1" ]]
+        then
+            moveBall
+        fi
         case $inst in
         w)  if [[ "$ballLaunched" == "0" ]]
             then
