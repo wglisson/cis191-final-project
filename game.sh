@@ -438,6 +438,8 @@ launchBall() {
 moveBall() {
     oldBallX=$ballX
     oldBallY=$ballY
+    oldBallSpeedX=$ballSpeedX
+    oldBallSpeedY=$ballSpeedY
 	ballNextX=$(( ballX + ballSpeedX ))
 	ballNextY=$(( ballY - ballSpeedY ))
     checkBoundaryCollision                  # check if collided with a boundary
@@ -445,6 +447,7 @@ moveBall() {
     checkBlockCollision                     # check if collided with a block
     ballX=$(( ballX + ballSpeedX ))
 	ballY=$(( ballY - ballSpeedY ))
+    handleCollisionError
     tput cup $oldBallY $oldBallX
 	echo -n " "
 	tput cup $ballY $ballX
@@ -545,7 +548,6 @@ playagain() {
 # Update velocity of ball approriately and decrease the value of collided
 # blocks
 # #############################################################################
-# FIXME: Seems a little bit broken
 checkBlockCollision() {
     blockYIndex=$(( $ballNextY - 1 ))
     if [[ "$blockYIndex" -le 15 ]]
@@ -573,33 +575,26 @@ checkBlockCollision() {
     fi
 }
 
-oldCheckBlockCollision() {
-    blockYIndex=$(( $ballNextY - 1 ))
+# #############################################################################
+# Helper function to handle whether the ball's final position is a conflict
+# with any blocks. Resets the ball's position to its last position and negates
+# velocities to "back up" the ball out of the error causing situation.
+# #############################################################################
+handleCollisionError() {
+    blockYIndex=$(( $ballY - 1 ))
     if [[ "$blockYIndex" -le 15 ]]
-    then
-        blockCheckX=$(( $ballNextX + 1 ))
-        #blockCheckL=$ballNextX
-        #blockCheckR=$(( $ballNextX + 2 ))
-        blockCheckX=$(( $blockCheckX / 3 ))
-        #blockCheckL=$(( $blockCheckL / 3 ))
-        #blockCheckR=$(( $blockCheckR / 3 ))
-        blockXIndex=$(( $blockCheckX - 1 ))
-        #if [[ $blockCheckL -eq $blockCheckX ]]
-        #then
-            #if [[ $blockCheckR -eq $blockCheckX ]]
-            #then
-                blockVal="$(getVal $blockYIndex $blockXIndex)"
-                if [[ $blockVal -ne 0 ]]
-                then
-                    blockVal=$(( $blockVal - 1 ))
-                    score=$(( $score + 1 ))
-                    drawScore $scoreX $scoreY
-                    putVal "$blockYIndex" "$blockXIndex" "$blockVal"
-                    updateBrick "$blockYIndex" "$blockXIndex"
-                    ballSpeedY=$(( -1 * ballSpeedY ))
-                fi
-            #fi
-        #fi
+        then
+        blockXIndex=$(( $ballX + 1 ))
+        blockXIndex=$(( $blockXIndex / 3 ))
+        blockXIndex=$(( $blockXIndex - 1 ))
+        blockVal="$(getVal $blockYIndex $blockXIndex)"
+        if [[ $blockVal -ne 0 ]]
+        then
+            ballX=$oldBallX
+            ballY=$oldBallY
+            ballSpeedX=$(( -1 * $oldBallSpeedX ))
+            ballSpeedY=$(( -1 * $oldBallSpeedY ))
+        fi
     fi
 }
 
@@ -657,8 +652,12 @@ checkBoardCollision() {
 resetparameters() {
     export ballX=0             # current x coordinate of ball
     export ballY=28            # current y coordinate of ball
+    export oldBallX=0          # old x coordinate of ball
+    export oldBallY=0          # old y coordinate of ball
     export ballNextX=0         # Next X position of the ball
     export ballNextY=0         # Next Y position of the ball
+    export oldBallSpeedX=0     # old ballSpeedX used for reset purposes
+    export oldBallSpeedY=0     # old ballSpeedY used for reset purposes
     export ballSpeedX=0        # ballSpeedX is movement of ball in x direction
     export ballSpeedY=0        # ballSpeedY is movement of ball in y direction
 }
