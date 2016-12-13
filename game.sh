@@ -472,6 +472,33 @@ checkBlockCollision() {
     blockYIndex=$(( $ballNextY - 1 ))
     if [[ "$blockYIndex" -le 15 ]]
     then
+        blockXIndex=$(( $ballNextX + 1 ))
+        blockXIndex=$(( $blockXIndex / 3 ))
+        blockXIndex=$(( $blockXIndex - 1 ))
+        blockVal="$(getVal $blockYIndex $blockXIndex)"
+        if [[ $blockVal -ne 0 ]]
+        then
+            blockVal=$(( $blockVal - 1 ))
+            ballYSide=$(( ballY - 1 ))
+            blockValSide="$(getVal $ballYSide $blockXIndex)"
+            if [[ $blockValSide -ne 0 ]]
+            then
+                ballSpeedX=$(( -1 * ballSpeedX ))
+            else
+                ballSpeedY=$(( -1 * ballSpeedY ))
+            fi
+            score=$(( $score + 1 ))
+            drawScore $scoreX $scoreY
+            putVal "$blockYIndex" "$blockXIndex" "$blockVal"
+            updateBrick "$blockYIndex" "$blockXIndex"
+        fi
+    fi
+}
+
+oldCheckBlockCollision() {
+    blockYIndex=$(( $ballNextY - 1 ))
+    if [[ "$blockYIndex" -le 15 ]]
+    then
         blockCheckX=$(( $ballNextX + 1 ))
         #blockCheckL=$ballNextX
         #blockCheckR=$(( $ballNextX + 2 ))
