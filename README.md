@@ -24,6 +24,7 @@ there are only levels 1-5 as of now. Any other level inputs will start a random 
 You are trying to destroy all the blocks in the stage by bouncing a ball off of the paddle at the bottom of the stage. Every time you hit a block, it gets weakened by a value of 1. Once a block
 is weakened to 0, it is destroyed and disappears from the screen. Each time you hit a block, you get a point.
 
+#### The Project: ####
 This project centers on the usage of Bash shell scripting to make a graphical game in the terminal.
 We will be assigning responsibilities based on the feature list in the near-future and proceeding
 with development.
