@@ -520,21 +520,22 @@ exitgame() {
     exit 0
 }
 
+## Helper function to check whether the user wants to play again
 playagain() {
     playagainX=40       # x-position of play again?
     playagainY=20       # y-position of play again?
 
     tput cup $(( $playagainY + 5 )) $playagainX
     echo "Press R to play again, X to exit"
-    sleep 2
+    sleep 2     # sleep for 2 seconds to properly catch user input.
     # catch user input, X to exit game, R to reload game
     read -n 1 selection
     case $selection in
-        x ) exitgame
+        x ) exitgame        # if x selected, then exit game
         ;;
-        r ) startGame
+        r ) startGame       # if r pressed, then replay game.
         ;;
-        * ) sleep 1
+        * ) sleep 1         # sleep for 1 second and exit
     esac
     exitgame
 }
