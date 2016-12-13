@@ -560,7 +560,7 @@ startGame() {
     drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
     drawScore $scoreX $scoreY
 
-		#var1 decides what level to play. if no var1 or var1 doesn't exist, then we 
+		#var1 decides what level to play. if no var1 or var1 doesn't exist, then we
 		#create a random level
 		if [[ -f $1 ]]
 		then
@@ -575,6 +575,7 @@ startGame() {
 						exit 0 ;;
 			esac
 		else
+
     # First generate a level with $BLOCKS_ROWSTOFILL_DEFAULT number of rows of block,
     # but which allows up to BLOCKS_MAX_NUMROWS of blocks. Essentially the file
     # used to encode a is BLOCKS_MAX_NUMROWS lines, where the First
