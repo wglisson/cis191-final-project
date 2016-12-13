@@ -406,13 +406,6 @@ updateBoardR() {
 }
 
 
-ballX=0             # current x coordinate of ball
-ballY=28            # current y coordinate of ball
-ballNextX=0         # Next X position of the ball
-ballNextY=0         # Next Y position of the ball
-ballSpeedX=0        # ballSpeedX is movement of ball in x direction
-ballSpeedY=0        # ballSpeedY is movement of ball in y direction
-
 
 ################################################################################
 # gives details for game board
@@ -445,10 +438,10 @@ launchBall() {
 moveBall() {
     oldBallX=$ballX
     oldBallY=$ballY
-    checkBoundaryCollision
-    checkBoardCollision                     # check if collided with the board
 	ballNextX=$(( ballX + ballSpeedX ))
 	ballNextY=$(( ballY - ballSpeedY ))
+    checkBoundaryCollision                  # check if collided with a boundary
+    checkBoardCollision                     # check if collided with the board
     checkBlockCollision                     # check if collided with a block
     ballX=$(( ballX + ballSpeedX ))
 	ballY=$(( ballY - ballSpeedY ))
@@ -464,62 +457,86 @@ moveBall() {
 # #############################################################################
 checkBoundaryCollision() {
 	#check for collisions with the game's boundaries
-	if [[ $ballX -ge $(( $gameRight - 1 )) ]]
+	if [[ $ballNextX -ge $(( $gameRight )) ]]
 	then
 		ballSpeedX=$(( -1 * ballSpeedX ))
 	fi
-	if [[ $ballY -le $(( $gameTop + 1 )) ]]
+	if [[ $ballNextY -le $(( $gameTop )) ]]
 	then
 		ballSpeedY=$(( -1 * ballSpeedY ))
 	fi
-	if [[ $ballX -le $(( $gameLeft + 1 )) ]]
+	if [[ $ballNextX -le $(( $gameLeft )) ]]
 	then
 		ballSpeedX=$(( -1 * ballSpeedX ))
 	fi
 	if [[ $ballY -ge $(( $gameBottom  )) ]]
 	then
-		#gameover
-		ballSpeedY=0
-		ballSpeedX=0
-		tput cup $(( $scoreY + 5)) $scoreX
-		echo "Game Over"
-		#compares current score to high score (if it exists), and update if needed
-		#check if the high scores list exists
-		if [[ -f ".highScore" ]]
-		then
-			read -r curHighScore < .highScore
-			#curHighScore=10
-			if [[ score -le curHighScore ]]
-			then
-				tput cup $(( $scoreY + 10 )) $scoreX
-				echo "current high score is " $curHighScore
-			else
-				echo $score > .highScore
-				tput cup $(( $scoreY + 10 )) $scoreX
-				echo $score "is a new high score!"
-			fi
-		else
-			#if no high score file, print "new high score" and create high score file
-			touch .highScore
-			echo $score > .highScore
-			tput cup $(( $scoreY + 10 )) $scoreX
-			echo $score "is a new high score!"
-		fi
-
-        #TODO: Implement  Allow user to press a key to play again.
-
-        # if the user loses, then exit out of the game after 3 seconds and
-        # reset the terminal settings.
-        sleep 3
-        resetTerminal
-        exit 0
+        gameover
 	fi
 }
 
+gameover() {
+    #gameover
+    ballSpeedY=0
+    ballSpeedX=0
+    tput cup $(( $scoreY + 5)) $scoreX
+    echo "Game Over"
+    #compares current score to high score (if it exists), and update if needed
+    #check if the high scores list exists
+    if [[ -f ".highScore" ]]
+    then
+        read -r curHighScore < .highScore
+        #curHighScore=10
+        if [[ score -le curHighScore ]]
+        then
+            tput cup $(( $scoreY + 10 )) $scoreX
+            echo "current high score is " $curHighScore
+        else
+            echo $score > .highScore
+            tput cup $(( $scoreY + 10 )) $scoreX
+            echo $score "is a new high score!"
+        fi
+    else
+        #if no high score file, print "new high score" and create high score file
+        touch .highScore
+        echo $score > .highScore
+        tput cup $(( $scoreY + 10 )) $scoreX
+        echo $score "is a new high score!"
+    fi
+
+    # TODO: Implement  Allow user to press a key to play again.
+    playagain
+}
 ## resets terminal after game state ends.
 resetTerminal() {
     tput reset
     stty echo
+}
+
+exitgame() {
+    # if the user loses, then exit out of the game after 3 seconds and
+    # reset the terminal settings.
+    resetTerminal
+    exit 0
+}
+
+playagain() {
+    playagainX=40       # x-position of play again?
+    playagainY=20       # y-position of play again?
+
+    tput cup $(( $playagainY + 5 )) $playagainX
+    echo "Press R to play again, X to exit"
+    sleep 2
+    # catch user input, X to exit game, R to reload game
+    read -n 1 selection
+    case $selection in
+        x ) exitgame
+        ;;
+        r ) startGame
+        ;;
+        * ) sleep 1
+    esac
+    exitgame
 }
 
 # #############################################################################
@@ -609,6 +626,14 @@ checkBoardCollision() {
     ballSpeedX=$(( ballSpeedX + ballSpeedX_change ))
 }
 
+resetparameters() {
+    export ballX=0             # current x coordinate of ball
+    export ballY=28            # current y coordinate of ball
+    export ballNextX=0         # Next X position of the ball
+    export ballNextY=0         # Next Y position of the ball
+    export ballSpeedX=0        # ballSpeedX is movement of ball in x direction
+    export ballSpeedY=0        # ballSpeedY is movement of ball in y direction
+}
 # Starting a new game
 startGame() {
     clear               #clear the terminal on starting
@@ -618,11 +643,13 @@ startGame() {
     initializeBlocks    # sets all blocks to emtpy
     ballLaunched=0      # ball has not launched
 
+    resetparameters     # reset the parameters
+
     drawBorders $topLeftX $topLeftY $gameWidth $gameHeight
     drawScore $scoreX $scoreY
 
-		#var1 decides what level to play. if no var1 or var1 doesn't exist, then we
-		#create a random level
+		# var1 decides what level to play. if no var1 or var1 doesn't exist, then we
+		# create a random level
 		if [[ -f $1 ]]
 		then
 			case $1 in
