@@ -1,9 +1,59 @@
 #!/bin/bash
 
+################################################################################
+# Brick Breaker Game for CIS191 Final Project. See README.md
+#
+# University of Pennsylvania
+# CIS191 - Unix, fall 2016
+#
+# @author: alextzhao
+# @author: wglisson
+# @author: wangandr
+# ##############################################################################
+
+# Intial state of the game. Throughout the game tput + echo is used to draw the
+# game appropriately:
+
+
+ # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ # X[4][3][3][4][5][4][4][4][3][1]X
+ # X[3][1][4][3]   [2][2][5][2][1]X
+ # X[1][4][4]   [1][1][1][2]   [1]X
+ # X[1][1][3][2][5][5][1]   [4]   X
+ # X[4]         [4][1][3]   [1][5]X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X       Score:  0
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X                              X
+ # X              0               X
+ # X            <===>             X
+ # X                              X
+ # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
 ########################   Check System Requirements  ##########################
 
 # Checks if the game window reachers requirements. game needs at least 50
-# column terminal display. Note: Adapted from ShellTris
+# column terminal display. Note: code is adapted from ShellTris, reference:
+# http://www.shellscriptgames.com/shelltris/
 LL=`stty -a | grep rows | sed 's/^.*;\(.*\)rows\(.*\);.*$/\1\2/' | sed 's/;.*$//' | sed 's/[^0-9]//g'` # ROWS
 LC=`stty -a | grep columns | sed 's/^.*;\(.*\)columns\(.*\);.*$/\1\2/' | sed 's/;.*$//' | sed 's/[^0-9]//g'` # COLUMNS
 if [ $LC -lt 50 ] ; then
@@ -16,12 +66,12 @@ if [ $LL -lt 35 ] ; then
     exit 0;
 fi
 
-# Terminal setting to suppress echo (hide all key press output)
-#TTYSETTING="-echo"
-
 
 #############        data structures to store blocks      ######################
-# Note that there is a maximum of 15 rows of blocks
+# Note that there is a maximum of 15 rows of blocks. The game can potentially
+# have fewer rows of block, in which case the rows will be populated from row1,
+# ...rowk. The rest of the rows will contains 0's
+#
 # Each row has 10 blocks
 initializeBlocks() {
     export row1=(0 0 0 0 0 0 0 0 0 0)
@@ -53,13 +103,13 @@ BLOCKS_NUMCOLS_DEFAULT=10       # Cols to actually fill. Suggested default: 10
 # var 2 is starting y coordinate
 # score is the current score, initially 0, but changes throughout the game
 # #############################################################################
-score=0
-scoreX=40
-scoreY=10
+score=0         # starting score is 0
+scoreX=40       # x-position of score
+scoreY=10       # y-position of score
 
 drawScore() {
-tput cup $2 $1
-echo "Score: " $score
+    tput cup $2 $1
+    echo "Score: " $score
 }
 
 
@@ -77,6 +127,7 @@ echo "Score: " $score
 # #############################################################################
 drawBorders() {
 
+    # helper variables to store the progress in x and y direction when drawing
     xprog=0
     yprog=0
 
@@ -88,6 +139,7 @@ drawBorders() {
         # Move cursor to screen location X, Y (top left is 0,0)
         tput cup $2 $xloc
         echo -n "X"
+
         #prints bottom border as well
         yloc=$(( $2 + $4 ))
         tput cup $yloc $xloc
@@ -101,6 +153,7 @@ drawBorders() {
         yloc=$(( $yprog + $2 ))
         tput cup $yloc $1
         echo -n "X"
+
         xloc=$(( $1 + $3 ))
         tput cup $yloc $xloc
         echo -n "X"
@@ -121,7 +174,7 @@ drawBorders() {
 
 
 # #############################################################################
-# Helper function to get the value at (x,y).
+# Helper function to get the value of a block at (x,y).
 #
 # Expects 4 input elements, as follows
 # @Input:
@@ -152,7 +205,7 @@ getVal() {
 }
 
 # #############################################################################
-# Helper function to put a value at (x,y).
+# Helper function to put a value of a block at (x,y).
 #
 # Expects 3 input elements, as follows
 # @Input:
@@ -188,10 +241,6 @@ putVal() {
 # #############################################################################
 # Loads blocks based on description from a file.
 #
-# FIXME: Currently does not does error checking to ensure that the file has
-# at most 10 columns and 15 rows. This should be enforced by any argument passed
-# into generateLevel
-#
 # @Inputs:
 # var 1: filename       the file from which to load the blocks.
 # #############################################################################
@@ -202,19 +251,11 @@ loadBlocksFromFile() {
     # We process each row at a time. Initialize currRow to 1
     currRow=1
     while IFS='' read -r line || [[ -n "$line" ]]; do
-        # echo "Text read from file: $line"     # test that line read is correct
-
-        # Playing with variable assignments
-        # declare row$currRow=$line
-        # varname=row$currRow
-        # echo ${!varname}
 
         # Loop over each character in each line and update the data structures
         # representing the blocks using putVal
         rowEncoding="$line"
         for (( i=0; i<${#rowEncoding}; i++ )); do
-          # echo "${rowEncoding:$i:1}"      # test that we can loop over each character
-
           # puts the value in the appropriate row and colum
           putVal $currRow "$((i))" "${rowEncoding:$i:1}"
         done
@@ -229,7 +270,6 @@ loadBlocksFromFile() {
 # #############################################################################
 # Helper function to render the bricks based on the underlying bricks data
 # structure
-#
 # #############################################################################
 drawBricks() {
     row=1
@@ -257,8 +297,9 @@ drawBricks() {
 # #############################################################################
 # Helper function to update the bricks
 #
-# 1 row
-# 2 col
+# @inputs
+# var 1 row
+# var 2 col
 # #############################################################################
 updateBrick() {
     rowOffset=$(( $1 + 1 ))
@@ -278,16 +319,16 @@ updateBrick() {
 # loads data into arrays that will then be drawn to
 # add a diagonal line of [5] bricks - just POC that if we can load
 # level data into arrays, it will get drawn correctly
-demoPopulate() {
-    val=0
-    while [[ $val -lt 10 ]]
-    do
-        valOffset=$(( $val + 1 ))
-        putVal "$valOffset" "$val" 2
-        echo -n "$(getVal valOffset val)"
-        val=$(( $val + 1))
-    done
-}
+# demoPopulate() {
+#     val=0
+#     while [[ $val -lt 10 ]]
+#     do
+#         valOffset=$(( $val + 1 ))
+#         putVal "$valOffset" "$val" 2
+#         echo -n "$(getVal valOffset val)"
+#         val=$(( $val + 1))
+#     done
+# }
 
 # Board variable recommendations, can be moved around to a more appropriate position later
 # boardX represents the x coord of the center cell of the board, board movement is calculated through this
@@ -298,10 +339,17 @@ boardWidth=2
 boardX=16
 boardY=30
 
-#Draw the board's position on the screen
+################################################################################
+# Draw the board's position on the screen
+#
+# @inputs: none
+# ##############################################################################
 drawBoard() {
     counter=0
     boardLeftX=$(( boardX - $boardWidth ))
+
+    # use a case statement to draw the board. Set up like this to make re-rendering
+    # easier
     while [[ $counter -lt 5 ]]
     do
         case $counter in
@@ -311,14 +359,17 @@ drawBoard() {
             3) char="=" ;;
             4) char=">"
         esac
+
+        # actual rendering of the board
         tput cup $boardY $(( $boardLeftX + $counter ))
         echo -n "$char"
         counter=$(( $counter + 1 ))
     done
 }
 
-
-#Moves the board one character to the left
+################################################################################
+# Moves the board one character to the left
+################################################################################
 updateBoardL() {
     boardLeftX=$(( boardX - $boardWidth ))
 
@@ -335,7 +386,9 @@ updateBoardL() {
     echo -n " "
 }
 
-#Moves the board one character to the right
+################################################################################
+# Moves the board one character to the right
+################################################################################
 updateBoardR() {
     boardRightX=$(( boardX + $boardWidth ))
 
@@ -352,19 +405,18 @@ updateBoardR() {
     echo -n " "
 }
 
-#ballX is x coordinate of ball
-#ballY is y coordinate of ball
-#ballSpeedX is movement of ball in x direction
-#ballSpeedY is movement of ball in y direction
-ballX=0
-ballY=28
-ballNextX=0
-ballNextY=0
-ballSpeedX=0
-ballSpeedY=0
+
+ballX=0             # current x coordinate of ball
+ballY=28            # current y coordinate of ball
+ballNextX=0         # Next X position of the ball
+ballNextY=0         # Next Y position of the ball
+ballSpeedX=0        # ballSpeedX is movement of ball in x direction
+ballSpeedY=0        # ballSpeedY is movement of ball in y direction
 
 
-#gives details for game board
+################################################################################
+# gives details for game board
+################################################################################
 export topLeftX=1
 export topLeftY=1
 export gameWidth=31
@@ -374,7 +426,11 @@ export gameTop=$(( topLeftY + 1 ))
 export gameLeft=$(( topLeftX + 1 ))
 export gameBottom=$(( topLeftY + gameHeight -1 ))
 
-#Method stub for ball launchBall
+################################################################################
+# Method stub for ball launchBall
+#
+# FIXME: Currently ball only launches when a key is pressed.
+################################################################################
 launchBall() {
     ballX=$boardX
 	tput cup $ballY $ballX
@@ -383,7 +439,9 @@ launchBall() {
 	ballSpeedY=1
 }
 
-#updates the ball's position
+################################################################################
+# updates the ball's position
+################################################################################
 moveBall() {
     oldBallX=$ballX
     oldBallY=$ballY
@@ -449,7 +507,9 @@ checkBoundaryCollision() {
 		fi
 
         #TODO: Implement  Allow user to press a key to play again.
-        # TODO: If exit, need to clear the terminal and revert the cursor settings.
+
+        # if the user loses, then exit out of the game after 3 seconds and
+        # reset the terminal settings.
         sleep 3
         resetTerminal
         exit 0
@@ -505,7 +565,7 @@ checkBlockCollision() {
 ballIsWithinBoard() {
     # check if board is on same y coordinate
     if [[ $ballY -ge $(( $boardY - 1)) ]]; then
-        # check if ball is within x cofines of the board.
+        # check if ball is within x confines of the board.
         if [[ $ballX -ge $(( $boardX - $boardWidth)) ]]; then
             if [[ $ballX -le $(( $boardX + $boardWidth)) ]]; then
                 return 0
@@ -531,7 +591,7 @@ checkBoardCollision() {
     # update the x speed of ball depending on where ball collides on boardX
     boardLeftX=$(( $boardX-$boardWidth ))
     boardTotalWidth=$(( 2*$boardWidth + 1 ))    #compute the total board width
-    # FIXME: Note that this is a brute force solution. Completely not extensible
+    # NOTE: Note that this is a brute force solution. Completely not extensible
     # if the board width changes in any way.
     ballSpeedX_change=0
     if [[ ballX -le $(( boardLeftX + 1 )) ]]; then
