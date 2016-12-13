@@ -103,7 +103,6 @@ BLOCKS_NUMCOLS_DEFAULT=10       # Cols to actually fill. Suggested default: 10
 # var 2 is starting y coordinate
 # score is the current score, initially 0, but changes throughout the game
 # #############################################################################
-score=0         # starting score is 0
 scoreX=40       # x-position of score
 scoreY=10       # y-position of score
 
@@ -660,6 +659,7 @@ resetparameters() {
     export oldBallSpeedY=0     # old ballSpeedY used for reset purposes
     export ballSpeedX=0        # ballSpeedX is movement of ball in x direction
     export ballSpeedY=0        # ballSpeedY is movement of ball in y direction
+    export score=0             # score for the current game
 }
 # Starting a new game
 startGame() {
